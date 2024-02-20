@@ -84,5 +84,25 @@ namespace MailAPI.Controllers
         {
             return (_context.Mails?.Any(m => m.Id == id)).GetValueOrDefault();
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> MailDelete(MailModel mail, int id)
+        {
+
+            if(id != mail.Id)
+            {
+                return BadRequest();
+            }
+            else if(_context.Mails == null)
+            {
+                return NotFound();
+            }
+
+            _context.Mails.Remove(mail);
+
+            await _context.SaveChangesAsync();
+
+            return Ok();    
+        }
     }
 }
