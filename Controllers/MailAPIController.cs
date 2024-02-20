@@ -1,7 +1,10 @@
 ﻿using MailAPI.DataContext;
 using MailAPI.Models;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MimeKit;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -44,14 +47,14 @@ namespace MailAPI.Controllers
         }
 
 
-        [HttpPost]
-        public async Task<ActionResult<MailModel>> MailPost(MailModel mail) // post
-        {
-            _context.Mails.Add(mail);
-            await _context.SaveChangesAsync();
+        //[HttpPost]
+        //public async Task<ActionResult<MailModel>> MailPost(MailModel mail) // post
+        //{
+        //    _context.Mails.Add(mail);
+        //    await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetMail), new {id = mail.Id}, mail);
-        }
+        //    return CreatedAtAction(nameof(GetMail), new {id = mail.Id}, mail);
+        //}
 
         [HttpPut] // phai nhap dung id vao swagger moi PUT duoc du lieu
         public async Task<ActionResult> MailPut(MailModel mail, int id)
@@ -103,6 +106,29 @@ namespace MailAPI.Controllers
             await _context.SaveChangesAsync();
 
             return Ok();    
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<MailModel>> MailPost(MailModel mail) 
+        {
+            _context.Mails.Add(mail);
+            await _context.SaveChangesAsync();
+            
+
+            var email = new MimeMessage();
+            email.From.Add(MailboxAddress.Parse("william.schuppe77@ethereal.email"));
+            email.To.Add(MailboxAddress.Parse("william.schuppe77@ethereal.email"));
+            email.Subject =  mail.Title;    
+            email.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = mail.Content };
+            
+            using var smtp = new SmtpClient();
+            var port = 587;
+            smtp.Connect("smtp.ethereal.email", port, SecureSocketOptions.StartTls);
+            smtp.Authenticate("william.schuppe77@ethereal.email", "1vy4edV8AMn34kAtfU");
+            smtp.Send(email);
+            smtp.Disconnect(true);
+
+            return CreatedAtAction(nameof(GetMail), new { id = mail.Id }, mail);
         }
     }
 }
