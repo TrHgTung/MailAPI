@@ -18,14 +18,24 @@ namespace MailAPI.Controllers
             _context = context;
         }
         [HttpGet]
-        public async Task<ActionResult<MailModel>> GetMail(int id)
+        public async Task<ActionResult<IEnumerable<MailModel>>> GetMails() //get tat ca mails
         {
             if(_context.Mails == null)
             {
                 return NotFound();
             }
+            
+            return await _context.Mails.ToListAsync();
+        }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<MailModel>> GetMail(int id) // get voi mail id
+        {
+            if (_context.Mails == null)
+            {
+                return NotFound();
+            }
             var mail = await _context.Mails.FindAsync(id);
-            if(mail == null)
+            if (mail == null)
             {
                 return NotFound();
             }
@@ -35,7 +45,7 @@ namespace MailAPI.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult<MailModel>> MailPost(MailModel mail)
+        public async Task<ActionResult<MailModel>> MailPost(MailModel mail) // post
         {
             _context.Mails.Add(mail);
             await _context.SaveChangesAsync();
