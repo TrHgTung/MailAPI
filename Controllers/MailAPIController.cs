@@ -5,6 +5,7 @@ using MailKit.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
+using System.Net.Mail;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -109,22 +110,41 @@ namespace MailAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<MailModel>> MailPost(MailModel mail) 
+        public async Task<ActionResult<MailModel>> MailPost(MailModel mail)
         {
             _context.Mails.Add(mail);
             await _context.SaveChangesAsync();
-            
 
+            var builder = new BodyBuilder();
             var email = new MimeMessage();
             email.From.Add(MailboxAddress.Parse("william.schuppe77@ethereal.email"));
-            email.To.Add(MailboxAddress.Parse("william.schuppe77@ethereal.email"));
+            //email.To.Add(MailboxAddress.Parse("william.schuppe77@ethereal.email"));
+            email.To.Add(MailboxAddress.Parse(mail.Email ));
             email.Subject =  mail.Title;    
             email.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = mail.Content };
-            
-            using var smtp = new SmtpClient();
+
+            //byte[] fileBytes;
+            //if(System.IO.File.Exists("Attachment/Files/text.txt"))
+            //{
+            //    FileStream file = new FileStream("Attachment/Files/text.txt", FileMode.Open, FileAccess.Read);
+            //    using (var ms = new MemoryStream())
+            //    {
+            //        file.CopyTo(ms);
+            //        fileBytes = ms.ToArray();
+            //    }
+            //    builder.Attachments.Add("text.txt", fileBytes, ContentType.Parse("application/octet-stream"));
+            //}
+
+            using var smtp = new MailKit.Net.Smtp.SmtpClient();
             var port = 587;
+            var attachment = new MimePart("application", "octet-stream")
+            {
+                FileName = Path.GetFileName(mail.FileName)
+            };
+            builder.Attachments.Add(attachment);
+
             smtp.Connect("smtp.ethereal.email", port, SecureSocketOptions.StartTls);
-            smtp.Authenticate("william.schuppe77@ethereal.email", "1vy4edV8AMn34kAtfU");
+            smtp.Authenticate("william.schuppe77@ethereal.email", "1vy4edV8AMn34kAtfU"); // with ethereal.email
             smtp.Send(email);
             smtp.Disconnect(true);
 
