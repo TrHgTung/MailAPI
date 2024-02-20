@@ -52,5 +52,37 @@ namespace MailAPI.Controllers
 
             return CreatedAtAction(nameof(GetMail), new {id = mail.Id}, mail);
         }
+
+        [HttpPut] // phai nhap dung id vao swagger moi PUT duoc du lieu
+        public async Task<ActionResult> MailPut(MailModel mail, int id)
+        {
+            if(id != mail.Id)
+            {
+                return BadRequest();
+            }
+            _context.Entry(mail).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!MailExist(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+           return Ok();
+        }
+        private bool MailExist(int id)
+        {
+            return (_context.Mails?.Any(m => m.Id == id)).GetValueOrDefault();
+        }
     }
 }
