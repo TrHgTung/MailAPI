@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using System.Net.Mail;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,10 +17,12 @@ namespace MailAPI.Controllers
     public class MailAPIController : ControllerBase
     {
         private readonly MailContext _context;
+        IHostingEnvironment  env = null;
 
-        public MailAPIController(MailContext context)
+        public MailAPIController(MailContext context, IHostingEnvironment env)
         {
             _context = context;
+            this.env = env;
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MailModel>>> GetMails() //get tat ca mails
@@ -112,12 +115,16 @@ namespace MailAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<MailModel>> MailPost(MailModel mail)
         {
+            using var smtp = new MailKit.Net.Smtp.SmtpClient();
+            var portEthereal = 587;
+            //var portGoogle = 465;
+
             _context.Mails.Add(mail);
             await _context.SaveChangesAsync();
 
             var builder = new BodyBuilder();
             var email = new MimeMessage();
-            email.From.Add(MailboxAddress.Parse("william.schuppe77@ethereal.email"));
+            email.From.Add(MailboxAddress.Parse("tungng14@gmail.com"));
             //email.To.Add(MailboxAddress.Parse("william.schuppe77@ethereal.email"));
             email.To.Add(MailboxAddress.Parse(mail.Email ));
             email.Subject =  mail.Title;    
@@ -135,16 +142,19 @@ namespace MailAPI.Controllers
             //    builder.Attachments.Add("text.txt", fileBytes, ContentType.Parse("application/octet-stream"));
             //}
 
-            using var smtp = new MailKit.Net.Smtp.SmtpClient();
-            var port = 587;
-            var attachment = new MimePart("application", "octet-stream")
-            {
-                FileName = Path.GetFileName(mail.FileName)
-            };
-            builder.Attachments.Add(attachment);
 
-            smtp.Connect("smtp.ethereal.email", port, SecureSocketOptions.StartTls);
-            smtp.Authenticate("william.schuppe77@ethereal.email", "1vy4edV8AMn34kAtfU"); // with ethereal.email
+            //var attachment = new MimePart("application", "octet-stream")
+            //{
+            //    FileName = Path.GetFileName(mail.FileName)
+            //};
+            //builder.Attachments.Add(attachment);
+            var file_sent = builder.Attachments.Add(env.WebRootPath + "\\text.txt"); ;
+            email.Body =  file_sent;
+
+            //smtp.Connect("smtp.ethereal.email", portEthereal, SecureSocketOptions.StartTls);
+            smtp.Connect("smtp.gmail.com");
+            //smtp.Authenticate("william.schuppe77@ethereal.email", "1vy4edV8AMn34kAtfU"); // with ethereal.email
+            smtp.Authenticate("tungng14@gmail.com", "msmsoviafhlxmshl"); // with ethereal.email
             smtp.Send(email);
             smtp.Disconnect(true);
 

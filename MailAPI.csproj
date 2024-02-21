@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\text.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MailKit" Version="4.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.27" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.27" />
@@ -19,6 +23,10 @@
 
   <ItemGroup>
     <Folder Include="Attachment\Files\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\text.txt" />
   </ItemGroup>
 
 </Project>
