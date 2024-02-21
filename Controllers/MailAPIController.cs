@@ -116,44 +116,27 @@ namespace MailAPI.Controllers
         public async Task<ActionResult<MailModel>> MailPost(MailModel mail)
         {
             using var smtp = new MailKit.Net.Smtp.SmtpClient();
-            var portEthereal = 587;
-            //var portGoogle = 465;
 
             _context.Mails.Add(mail);
             await _context.SaveChangesAsync();
 
             var builder = new BodyBuilder();
             var email = new MimeMessage();
+
             email.From.Add(MailboxAddress.Parse("tungng14@gmail.com"));
-            //email.To.Add(MailboxAddress.Parse("william.schuppe77@ethereal.email"));
             email.To.Add(MailboxAddress.Parse(mail.Email ));
             email.Subject =  mail.Title;    
-            email.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = mail.Content };
+            //email.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = mail.Content };
+            builder.TextBody = mail.Content;
 
-            //byte[] fileBytes;
-            //if(System.IO.File.Exists("Attachment/Files/text.txt"))
-            //{
-            //    FileStream file = new FileStream("Attachment/Files/text.txt", FileMode.Open, FileAccess.Read);
-            //    using (var ms = new MemoryStream())
-            //    {
-            //        file.CopyTo(ms);
-            //        fileBytes = ms.ToArray();
-            //    }
-            //    builder.Attachments.Add("text.txt", fileBytes, ContentType.Parse("application/octet-stream"));
-            //}
+            // attach file text.txt tu wwwroot (WebRootPath))
+            var file_sent = builder.Attachments.Add(env.WebRootPath + "\\text.txt");
+            //email.Body =  file_sent;
+            
 
+            email.Body = builder.ToMessageBody();
 
-            //var attachment = new MimePart("application", "octet-stream")
-            //{
-            //    FileName = Path.GetFileName(mail.FileName)
-            //};
-            //builder.Attachments.Add(attachment);
-            var file_sent = builder.Attachments.Add(env.WebRootPath + "\\text.txt"); ;
-            email.Body =  file_sent;
-
-            //smtp.Connect("smtp.ethereal.email", portEthereal, SecureSocketOptions.StartTls);
             smtp.Connect("smtp.gmail.com");
-            //smtp.Authenticate("william.schuppe77@ethereal.email", "1vy4edV8AMn34kAtfU"); // with ethereal.email
             smtp.Authenticate("tungng14@gmail.com", "msmsoviafhlxmshl"); // with ethereal.email
             smtp.Send(email);
             smtp.Disconnect(true);
