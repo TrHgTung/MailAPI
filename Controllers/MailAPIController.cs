@@ -137,7 +137,7 @@ namespace MailAPI.Controllers
             email.Body = builder.ToMessageBody();
 
             smtp.Connect("smtp.gmail.com");
-            smtp.Authenticate("tungng14@gmail.com", "msmsoviafhlxmshl"); // with ethereal.email
+            smtp.Authenticate("tungng14@gmail.com", "put-gôgle-app-password"); // with ethereal.email
             smtp.Send(email);
             smtp.Disconnect(true);
 
