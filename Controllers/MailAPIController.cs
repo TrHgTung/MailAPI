@@ -115,31 +115,31 @@ namespace MailAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<MailModel>> MailPost(MailModel mail)
         {
-            using var smtp = new MailKit.Net.Smtp.SmtpClient();
+            //using var smtp = new MailKit.Net.Smtp.SmtpClient();
 
             _context.Mails.Add(mail);
             await _context.SaveChangesAsync();
 
-            var builder = new BodyBuilder();
-            var email = new MimeMessage();
+            //var builder = new BodyBuilder();
+            //var email = new MimeMessage();
 
-            email.From.Add(MailboxAddress.Parse("tungng14@gmail.com"));
-            email.To.Add(MailboxAddress.Parse(mail.Email ));
-            email.Subject =  mail.Title;    
-            //email.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = mail.Content };
-            builder.TextBody = mail.Content;
+            //email.From.Add(MailboxAddress.Parse("tungng14@gmail.com"));
+            //email.To.Add(MailboxAddress.Parse(mail.Email ));
+            //email.Subject =  mail.Title;    
+            ////email.Body = new TextPart(MimeKit.Text.TextFormat.Text) { Text = mail.Content };
+            //builder.TextBody = mail.Content;
 
-            // attach file text.txt tu wwwroot (WebRootPath))
-            var file_sent = builder.Attachments.Add(env.WebRootPath + "\\text.txt");
-            //email.Body =  file_sent;
+            //// attach file text.txt tu wwwroot (WebRootPath))
+            //var file_sent = builder.Attachments.Add(env.WebRootPath + "\\text.txt");
+            ////email.Body =  file_sent;
             
 
-            email.Body = builder.ToMessageBody();
+            //email.Body = builder.ToMessageBody();
 
-            smtp.Connect("smtp.gmail.com");
-            smtp.Authenticate("tungng14@gmail.com", "put-gôgle-app-password"); // with ethereal.email
-            smtp.Send(email);
-            smtp.Disconnect(true);
+            //smtp.Connect("smtp.gmail.com");
+            //smtp.Authenticate("tungng14@gmail.com", "put-gôgle-app-password"); // with ethereal.email
+            //smtp.Send(email);
+            //smtp.Disconnect(true);
 
             return CreatedAtAction(nameof(GetMail), new { id = mail.Id }, mail);
         }
